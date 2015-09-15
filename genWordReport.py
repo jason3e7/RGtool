@@ -1,8 +1,5 @@
-# http://win32com.goermezer.de/content/view/173/192/
-# https://mail.python.org/pipermail/tutor/2006-July/048131.html
-
 import win32com.client
-filepath = "C:\Users\Jason3e7\Documents\hello.docx"
+filepath = "../RGtool/report/hello.docx"
 
 wordapp = win32com.client.Dispatch("Word.Application") # Create new Word Object
 wordapp.Visible = 0 # Word Application should`t be visible
