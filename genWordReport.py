@@ -1,14 +1,54 @@
 # -*- coding: utf8 -*-
-#coding=utf-8 
+# coding=utf-8 
 
 import sys
-reload(sys)
-print sys.getdefaultencoding()
-sys.setdefaultencoding('utf-8')
-print sys.getdefaultencoding()
-
 import win32com.client
+from docx import Document
 
+reload(sys)
+sys.setdefaultencoding('utf-8')
+
+document = Document()
+'''
+document.add_heading('Document Title', 0)
+
+p = document.add_paragraph('A plain paragraph having some ')
+p.add_run('bold').bold = True
+p.add_run(' and some ')
+p.add_run('italic.').italic = True
+
+document.add_heading('Heading, level 1', level=1)
+document.add_heading('Heading, level 1', level=1)
+document.add_heading('Heading, level 1', level=1)
+document.add_heading('Heading, level 1', level=1)
+#document.add_paragraph('Intense quote', style='IntenseQuote')
+
+document.add_paragraph(
+	'first item in unordered list', style='ListBullet'
+)
+document.add_paragraph(
+	'first item in ordered list', style='ListNumber'
+)
+
+#document.add_picture('monty-truth.png', width=Inches(1.25))
+
+table = document.add_table(rows=1, cols=3)
+
+hdr_cells = table.rows[0].cells
+hdr_cells[0].text = 'Qty'
+hdr_cells[1].text = 'Id'
+hdr_cells[2].text = 'Desc'
+
+items = [[1, 101, 'Spam'], [2, 42, 'Eggs'], [3, 631, 'Spam, spam']]
+
+for item in items:
+	row_cells = table.add_row().cells
+	row_cells[0].text = str(item[0])
+	row_cells[1].text = str(item[1])
+	row_cells[2].text = item[2]
+
+document.add_page_break()
+'''
 
 wordFilePath = "../RGtool/report/hello.docx"
 excelFilePath = "../RGtool/resource/test.xlsx"
@@ -17,7 +57,7 @@ excelapp = win32com.client.Dispatch("Excel.Application")
 excelapp.Visible = 0
 excelxls = excelapp.Workbooks.Open(excelFilePath)
 
-ws = excelxls.Worksheets("Sheet1")
+ws = excelxls.Worksheets("vuls")
 used = ws.UsedRange
 nrows = used.Row + used.Rows.Count
 ncols = used.Column + used.Columns.Count
@@ -37,30 +77,10 @@ for i in range(1, nrows):
 #data = excelapp.Range("A1")
 #print data.value
 
-
-wordapp = win32com.client.Dispatch("Word.Application") # Create new Word Object
-wordapp.Visible = 0 # Word Application should`t be visible
-worddoc = wordapp.Documents.Add() # Create new Document Object
-'''
-worddoc.PageSetup.Orientation = 1 # Make some Setup to the Document:
-worddoc.PageSetup.LeftMargin = 20
-worddoc.PageSetup.TopMargin = 20
-worddoc.PageSetup.BottomMargin = 20
-worddoc.PageSetup.RightMargin = 20
-worddoc.Content.Font.Size = 11
-worddoc.Content.Paragraphs.TabStops.Add (100)
-worddoc.Content.Text = "Hello world!"
-worddoc.Content.MoveEnd
-'''
-rng = worddoc.Range(0,0)
 for i in range(2, nrows):
 	for j in range(2, ncols):
-		rng.InsertAfter(ws.Cells(1, j))
-		rng.InsertAfter(" : ")
-		rng.InsertAfter(unicode(ws.Cells(i, j)))
-		rng.InsertAfter("\r\n")
-	rng.InsertAfter("\r\n\r\n")
-
-worddoc.SaveAs(wordFilePath)
-wordapp.Quit() # Close the Word Application
+		line = str(ws.Cells(1, j)) + " : " + unicode(ws.Cells(i, j))
+		document.add_paragraph(line, style='List Bullet')
+		
+document.save(wordFilePath)
 excelapp.Quit() # Close the Word Application
