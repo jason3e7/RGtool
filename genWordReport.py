@@ -63,5 +63,4 @@ for i in range(2, nrows):
 
 worddoc.SaveAs(wordFilePath)
 wordapp.Quit() # Close the Word Application
-
-
+excelapp.Quit() # Close the Word Application
