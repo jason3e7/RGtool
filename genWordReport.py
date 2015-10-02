@@ -57,30 +57,33 @@ excelapp = win32com.client.Dispatch("Excel.Application")
 excelapp.Visible = 0
 excelxls = excelapp.Workbooks.Open(excelFilePath)
 
+ws = excelxls.Worksheets("titles")
+used = ws.UsedRange
+nrows = used.Row + used.Rows.Count
+ncols = used.Column + used.Columns.Count
+
+'''
+for i in range(1, nrows):
+	for j in range(1, ncols):
+		print ws.Cells(i, j)
+'''
+for i in range(2, nrows):
+	#document.add_heading(str(ws.Cells(i, 1)), level=int(ws.Cells(i, 2)))
+	level = int(ws.Cells(i, 2))
+	if level == 1 :
+		document.add_paragraph(str(ws.Cells(i, 1)), style="List Number")
+	else :
+		document.add_paragraph(str(ws.Cells(i, 1)), style="List Number " + str(level))
+
 ws = excelxls.Worksheets("vuls")
 used = ws.UsedRange
 nrows = used.Row + used.Rows.Count
 ncols = used.Column + used.Columns.Count
 
-#print nrows
-#print ncols
-'''
-for i in range(1, nrows):
-	for j in range(1, ncols):
-		#print i
-		#print j
-		print ws.Cells(i, j)
-'''
-#print ws.Cells(2, 2)
-
-
-#data = excelapp.Range("A1")
-#print data.value
-
 for i in range(2, nrows):
 	for j in range(2, ncols):
 		line = str(ws.Cells(1, j)) + " : " + unicode(ws.Cells(i, j))
 		document.add_paragraph(line, style='List Bullet')
-		
+
 document.save(wordFilePath)
 excelapp.Quit() # Close the Word Application
