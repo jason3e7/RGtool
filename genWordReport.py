@@ -1,86 +1,112 @@
-# -*- coding: utf8 -*-
-# coding=utf-8 
+import subprocess
+import os
+import re
+from lxml import etree
 
-import sys
-import win32com.client
-from docx import Document
+outputPath = os.getcwd() + "/report/docxtemp"
+filepath = "../RGtool/report/"
+filename = "hello.docx"
 
-reload(sys)
-sys.setdefaultencoding('utf-8')
+## decompress from docx 
+subprocess.call(['7z', 'x', filepath + filename, '-o' + outputPath, '-y'], stdout=open(os.devnull, 'wb'))
 
-document = Document()
+## read xml file
+f = open(outputPath + '/word/document.xml', 'r+')
+xml = f.read()
+#print xml
+
+## root is element
+root = etree.fromstring(xml)
+#print(etree.tostring(root, pretty_print=True))
+
+## ns is namespace
+m = re.match('\{.*\}', root.tag)
+ns = m.group(0)
+
+## remove namespace
+for elem in root.getiterator():
+	nsEnd = elem.tag.find('}')
+	elem.tag = elem.tag[nsEnd + 1:]
+	for key in elem.keys():
+		nsEnd = key.find('}')
+		elem.set(key[nsEnd + 1:], elem.attrib[key])
+		del elem.attrib[key]
+	
 '''
-document.add_heading('Document Title', 0)
+for elem in root.getiterator():
+	print elem
+	for item in elem.items():
+		print item
+'''	
+#print(etree.tostring(root, pretty_print=True))
 
-p = document.add_paragraph('A plain paragraph having some ')
-p.add_run('bold').bold = True
-p.add_run(' and some ')
-p.add_run('italic.').italic = True
+pgMar = root.xpath('/document/body/sectPr/pgMar')
+pgBorders = etree.Element("pgBorders", offsetFrom="page")
+pgMar[0].addnext(pgBorders)
 
-document.add_heading('Heading, level 1', level=1)
-document.add_heading('Heading, level 1', level=1)
-document.add_heading('Heading, level 1', level=1)
-document.add_heading('Heading, level 1', level=1)
-#document.add_paragraph('Intense quote', style='IntenseQuote')
+locates = ['top', 'left', 'bottom', 'right']
+for l in locates:
+	etree.SubElement(pgBorders, l, val="thinThickSmallGap", sz="24", space="24", color="auto")
 
-document.add_paragraph(
-	'first item in unordered list', style='ListBullet'
-)
-document.add_paragraph(
-	'first item in ordered list', style='ListNumber'
-)
+body = root.xpath('/document/body')
+#p = etree.Element("p")
+#print body[0]
+#print p
+etree.SubElement(body[0], 'p')
+etree.SubElement(body[0], 'p')
+etree.SubElement(body[0], 'p')
 
-#document.add_picture('monty-truth.png', width=Inches(1.25))
+## company
+p = etree.SubElement(body[0], 'p')
+pPr = etree.SubElement(p, 'pPr')
+etree.SubElement(pPr, 'jc', val='center')
+rPr = etree.SubElement(pPr, 'rPr')
+etree.SubElement(rPr, 'bdr', color='auto', space='0', sz='4', val='single')
 
-table = document.add_table(rows=1, cols=3)
+r = etree.SubElement(p, 'r')
+rPr = etree.SubElement(r, 'rPr')
+etree.SubElement(rPr, 'rFonts', hint='eastAsia')
+etree.SubElement(rPr, 'bdr', color='auto', space='0', sz='4', val='single')
+t = etree.SubElement(r, 't')
+t.text = 'company'
 
-hdr_cells = table.rows[0].cells
-hdr_cells[0].text = 'Qty'
-hdr_cells[1].text = 'Id'
-hdr_cells[2].text = 'Desc'
+etree.SubElement(body[0], 'p')
 
-items = [[1, 101, 'Spam'], [2, 42, 'Eggs'], [3, 631, 'Spam, spam']]
+## PT report
+p = etree.SubElement(body[0], 'p')
+pPr = etree.SubElement(p, 'pPr')
+etree.SubElement(pPr, 'jc', val='center')
+rPr = etree.SubElement(pPr, 'rPr')
+etree.SubElement(rPr, 'bdr', color='auto', space='0', sz='4')
 
-for item in items:
-	row_cells = table.add_row().cells
-	row_cells[0].text = str(item[0])
-	row_cells[1].text = str(item[1])
-	row_cells[2].text = item[2]
+r = etree.SubElement(p, 'r')
+rPr = etree.SubElement(r, 'rPr')
+etree.SubElement(rPr, 'rFonts', hint='eastAsia')
+etree.SubElement(rPr, 'bdr', color='auto', space='0', sz='4')
+t = etree.SubElement(r, 't')
+t.text = 'PT report'
 
-document.add_page_break()
-'''
-
-wordFilePath = "../RGtool/report/hello.docx"
-excelFilePath = "../RGtool/resource/test.xlsx"
-
-excelapp = win32com.client.Dispatch("Excel.Application")
-excelapp.Visible = 0
-excelxls = excelapp.Workbooks.Open(excelFilePath)
-
-ws = excelxls.Worksheets("vuls")
-used = ws.UsedRange
-nrows = used.Row + used.Rows.Count
-ncols = used.Column + used.Columns.Count
-
-#print nrows
-#print ncols
-'''
-for i in range(1, nrows):
-	for j in range(1, ncols):
-		#print i
-		#print j
-		print ws.Cells(i, j)
-'''
-#print ws.Cells(2, 2)
+etree.SubElement(body[0], 'p')
 
 
-#data = excelapp.Range("A1")
-#print data.value
+etree.SubElement(body[0], 'p')
+etree.SubElement(body[0], 'p')
+etree.SubElement(body[0], 'p')
+#print(etree.tostring(root, pretty_print=True))
 
-for i in range(2, nrows):
-	for j in range(2, ncols):
-		line = str(ws.Cells(1, j)) + " : " + unicode(ws.Cells(i, j))
-		document.add_paragraph(line, style='List Bullet')
-		
-document.save(wordFilePath)
-excelapp.Quit() # Close the Word Application
+## add namespace
+for elem in root.getiterator():
+	elem.tag = ns + elem.tag
+	for key in elem.keys():
+		elem.set(ns + key, elem.attrib[key])
+		del elem.attrib[key]
+
+## write xml file
+f.seek(0)
+f.write('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n')
+f.write(etree.tostring(root))
+f.truncate()
+f.close()
+
+## compress to zip 
+subprocess.call(['7z', 'a', filepath + 'test.docx', outputPath + "/*"], stdout=open(os.devnull, 'wb'))
