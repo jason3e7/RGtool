@@ -48,6 +48,50 @@ locates = ['top', 'left', 'bottom', 'right']
 for l in locates:
 	etree.SubElement(pgBorders, l, val="thinThickSmallGap", sz="24", space="24", color="auto")
 
+body = root.xpath('/document/body')
+#p = etree.Element("p")
+#print body[0]
+#print p
+etree.SubElement(body[0], 'p')
+etree.SubElement(body[0], 'p')
+etree.SubElement(body[0], 'p')
+
+## company
+p = etree.SubElement(body[0], 'p')
+pPr = etree.SubElement(p, 'pPr')
+etree.SubElement(pPr, 'jc', val='center')
+rPr = etree.SubElement(pPr, 'rPr')
+etree.SubElement(rPr, 'bdr', color='auto', space='0', sz='4', val='single')
+
+r = etree.SubElement(p, 'r')
+rPr = etree.SubElement(r, 'rPr')
+etree.SubElement(rPr, 'rFonts', hint='eastAsia')
+etree.SubElement(rPr, 'bdr', color='auto', space='0', sz='4', val='single')
+t = etree.SubElement(r, 't')
+t.text = 'company'
+
+etree.SubElement(body[0], 'p')
+
+## PT report
+p = etree.SubElement(body[0], 'p')
+pPr = etree.SubElement(p, 'pPr')
+etree.SubElement(pPr, 'jc', val='center')
+rPr = etree.SubElement(pPr, 'rPr')
+etree.SubElement(rPr, 'bdr', color='auto', space='0', sz='4')
+
+r = etree.SubElement(p, 'r')
+rPr = etree.SubElement(r, 'rPr')
+etree.SubElement(rPr, 'rFonts', hint='eastAsia')
+etree.SubElement(rPr, 'bdr', color='auto', space='0', sz='4')
+t = etree.SubElement(r, 't')
+t.text = 'PT report'
+
+etree.SubElement(body[0], 'p')
+
+
+etree.SubElement(body[0], 'p')
+etree.SubElement(body[0], 'p')
+etree.SubElement(body[0], 'p')
 #print(etree.tostring(root, pretty_print=True))
 
 ## add namespace
