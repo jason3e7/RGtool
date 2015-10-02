@@ -24,40 +24,38 @@ m = re.match('\{.*\}', root.tag)
 ns = m.group(0)
 
 ## remove namespace
-nsEnd = root.tag.find('}')
-root.tag = root.tag[nsEnd + 1:]
 for elem in root.getiterator():
 	nsEnd = elem.tag.find('}')
 	elem.tag = elem.tag[nsEnd + 1:]
-
+	for key in elem.keys():
+		nsEnd = key.find('}')
+		elem.set(key[nsEnd + 1:], elem.attrib[key])
+		del elem.attrib[key]
+	
 '''
-print root
-print root.tag
-print root[0]
 for elem in root.getiterator():
 	print elem
+	for item in elem.items():
+		print item
+'''	
+#print(etree.tostring(root, pretty_print=True))
 
-#nsmap = {k:v for k,v in root.nsmap.iteritems() if k}
-#print nsmap
-'''
+pgMar = root.xpath('/document/body/sectPr/pgMar')
+pgBorders = etree.Element("pgBorders", offsetFrom="page")
+pgMar[0].addnext(pgBorders)
 
-'''
-document = root.xpath('/document/')
-print document
-'''
+locates = ['top', 'left', 'bottom', 'right']
+for l in locates:
+	etree.SubElement(pgBorders, l, val="thinThickSmallGap", sz="24", space="24", color="auto")
 
-#body = root.iterfind('p')
-#print body
-#print body[0]
-
-'''
-body = body.find('p')
-print body
-'''
+#print(etree.tostring(root, pretty_print=True))
 
 ## add namespace
 for elem in root.getiterator():
 	elem.tag = ns + elem.tag
+	for key in elem.keys():
+		elem.set(ns + key, elem.attrib[key])
+		del elem.attrib[key]
 
 ## write xml file
 f.seek(0)
