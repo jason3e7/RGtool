@@ -1,5 +1,6 @@
 import subprocess
 import os
+import re
 from lxml import etree
 
 outputPath = os.getcwd() + "/report/docxtemp"
@@ -14,15 +15,49 @@ f = open(outputPath + '/word/document.xml', 'r+')
 xml = f.read()
 #print xml
 
+## root is element
 root = etree.fromstring(xml)
+#print(etree.tostring(root, pretty_print=True))
 
-#parser = etree.XMLParser(ns_clean = True)
-#root = etree.parse(xml, parser)
+## ns is namespace
+m = re.match('\{.*\}', root.tag)
+ns = m.group(0)
 
-#print root
-#print root.find('t', namespaces='w')
-#print root.find("a")
+## remove namespace
+nsEnd = root.tag.find('}')
+root.tag = root.tag[nsEnd + 1:]
+for elem in root.getiterator():
+	nsEnd = elem.tag.find('}')
+	elem.tag = elem.tag[nsEnd + 1:]
 
+'''
+print root
+print root.tag
+print root[0]
+for elem in root.getiterator():
+	print elem
+
+#nsmap = {k:v for k,v in root.nsmap.iteritems() if k}
+#print nsmap
+'''
+
+'''
+document = root.xpath('/document/')
+print document
+'''
+
+#body = root.iterfind('p')
+#print body
+#print body[0]
+
+'''
+body = body.find('p')
+print body
+'''
+
+## add namespace
+for elem in root.getiterator():
+	elem.tag = ns + elem.tag
 
 ## write xml file
 f.seek(0)
